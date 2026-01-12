@@ -4,7 +4,7 @@ let redirectOrderId = "";
 /* =========================
    CONFIG
 ========================= */
-const BACKEND_URL = "https://YOUR_RENDER_URL.onrender.com";
+const BACKEND_URL = "https://delta-backend.onrender.com";
 
 /* =========================
    SEND ORDER
