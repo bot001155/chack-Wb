@@ -31,44 +31,39 @@ function sendOrder(platform) {
 
   /* SEND TO BACKEND (✅ MATCHES server.js) */
   fetch(`${BACKEND_URL}/send-order`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      orderId: redirectOrderId,
-      name: name,
-      product: product,
-      plan: "Standard",              // you can make this dynamic later
-      price: document.getElementById("priceDisplay")?.innerText || "",
-      payment: payment,
-      platform: platform,
-      email: email
-    })
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    orderId: redirectOrderId,
+    name,
+    product,
+    plan: "Standard",
+    price: document.getElementById("priceDisplay")?.innerText || "N/A",
+    payment,
+    platform,
+    email
   })
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("loading").style.display = "none";
+})
+.then(async res => {
+  const data = await res.json().catch(() => null);
 
-      if (!data.success) {
-        alert("Order failed. Please try again.");
-        return;
-      }
+  document.getElementById("loading").style.display = "none";
 
-      document.getElementById("successSound").play();
-      if (navigator.vibrate) navigator.vibrate(200);
+  if (!res.ok || !data || !data.success) {
+    throw new Error("Order failed");
+  }
 
-      document.getElementById("popupOrderId").innerText =
-        "Order ID: " + redirectOrderId;
+  document.getElementById("successSound").play();
+  document.getElementById("popupOrderId").innerText =
+    "Order ID: " + redirectOrderId;
+  document.getElementById("popup").style.display = "flex";
+})
+.catch(err => {
+  console.error(err);
+  document.getElementById("loading").style.display = "none";
+  alert("Order failed. Please try again.");
+});
 
-      document.getElementById("popup").style.display = "flex";
-    })
-    .catch(err => {
-      console.error(err);
-      document.getElementById("loading").style.display = "none";
-      alert("Server error. Please try again later.");
-    });
-}
 
 /* =========================
    COPY ORDER ID
@@ -121,3 +116,4 @@ function goToInstagram() {
   window.location.href =
     "https://ig.me/m/" + INSTAGRAM_USERNAME;
 }
+
