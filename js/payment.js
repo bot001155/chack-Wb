@@ -26,51 +26,47 @@ function sendOrder(platform) {
   redirectOrderId =
     "DMS-" + Math.random().toString(36).substring(2, 8).toUpperCase();
 
-  /* DATE & TIME */
-  const dateTime = new Date().toLocaleString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true
-  });
-
   /* SHOW LOADER */
   document.getElementById("loading").style.display = "flex";
 
-  /* SEND TO BACKEND */
-  fetch(`${BACKEND_URL}/order`, {
+  /* SEND TO BACKEND (✅ MATCHES server.js) */
+  fetch(`${BACKEND_URL}/send-order`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify({
       orderId: redirectOrderId,
-      data: {
-        name,
-        product,
-        email,
-        payment,
-        platform,
-        dateTime
-      }
+      name: name,
+      product: product,
+      plan: "Standard",              // you can make this dynamic later
+      price: document.getElementById("priceDisplay")?.innerText || "",
+      payment: payment,
+      platform: platform,
+      email: email
     })
   })
-    .then(() => {
-      setTimeout(() => {
-        document.getElementById("loading").style.display = "none";
-
-        document.getElementById("successSound").play();
-        if (navigator.vibrate) navigator.vibrate(200);
-
-        document.getElementById("popupOrderId").innerText =
-          "Order ID: " + redirectOrderId;
-
-        document.getElementById("popup").style.display = "flex";
-      }, 800);
-    })
-    .catch(() => {
+    .then(res => res.json())
+    .then(data => {
       document.getElementById("loading").style.display = "none";
-      alert("Server error. Please try again.");
+
+      if (!data.success) {
+        alert("Order failed. Please try again.");
+        return;
+      }
+
+      document.getElementById("successSound").play();
+      if (navigator.vibrate) navigator.vibrate(200);
+
+      document.getElementById("popupOrderId").innerText =
+        "Order ID: " + redirectOrderId;
+
+      document.getElementById("popup").style.display = "flex";
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById("loading").style.display = "none";
+      alert("Server error. Please try again later.");
     });
 }
 
