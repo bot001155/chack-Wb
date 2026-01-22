@@ -1,62 +1,75 @@
-const BACKEND_URL = "https://delta-backend-3ztx.onrender.com";
+const API = "https://delta-backend-3ztx.onrender.com";
 
-let selectedPlatform = "";
-let orderId = "";
+let cache = {};
 
-function placeOrder(platform) {
-  const name = document.getElementById("name").value.trim();
-  const product = document.getElementById("product").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const payment = document.getElementById("payment").value;
+/* ======================
+   START ORDER
+====================== */
+function startOrder(platform) {
+  cache.platform = platform;
+  cache.name = document.getElementById("name").value.trim();
+  cache.product = document.getElementById("product").value.trim();
+  cache.email = document.getElementById("email").value.trim();
+  cache.payment = document.getElementById("payment").value;
 
-  if (!name || !product || !email) {
-    alert("Fill all details");
+  if (!cache.name || !cache.product || !cache.email) {
+    alert("Please fill all fields");
     return;
   }
 
-  selectedPlatform = platform;
-  orderId = "DM-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+  fetch(API + "/send-otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: cache.email })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (!data.success) {
+        alert("Failed to send OTP");
+        return;
+      }
+      document.getElementById("otpBox").style.display = "flex";
+    })
+    .catch(() => alert("Server error"));
+}
 
-  document.getElementById("loader").style.display = "flex";
+/* ======================
+   VERIFY OTP
+====================== */
+function verifyOtp() {
+  const otp = document.getElementById("otp").value.trim();
 
-  fetch(`${BACKEND_URL}/send-order`, {
+  fetch(API + "/verify-otp", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      orderId,
-      name,
-      product,
-      email,
-      payment,
-      platform
+      email: cache.email,
+      otp: otp,
+      orderData: cache
     })
   })
     .then(res => res.json())
     .then(data => {
-      document.getElementById("loader").style.display = "none";
-
       if (!data.success) {
-        alert("Order failed");
+        alert("Invalid OTP");
         return;
       }
 
-      document.getElementById("orderId").innerText =
-        "Order ID: " + orderId;
-      document.getElementById("success").style.display = "flex";
+      document.getElementById("otpBox").style.display = "none";
+      document.getElementById("orderIdText").innerText =
+        "Order ID: " + data.orderId;
+      document.getElementById("successBox").style.display = "flex";
+
+      cache.orderId = data.orderId;
     })
-    .catch(() => {
-      document.getElementById("loader").style.display = "none";
-      alert("Server error");
-    });
+    .catch(() => alert("Server error"));
 }
 
-function continueChat() {
-  if (selectedPlatform === "telegram") {
-    window.location.href =
-      "https://t.me/Delta_Market_Owner?text=" +
-      encodeURIComponent("Order ID: " + orderId);
-  } else {
-    window.location.href = "https://ig.me/m/deltamarket015";
-  }
+/* ======================
+   REDIRECT TO TELEGRAM
+====================== */
+function goTelegram() {
+  window.location.href =
+    "https://t.me/Delta_Market_Owner?text=" +
+    encodeURIComponent("Order ID: " + cache.orderId);
 }
-
