@@ -1,4 +1,4 @@
-const BACKEND_URL = "https://YOUR-RENDER-URL.onrender.com";
+const BACKEND_URL = "https://delta-backend-3ztx.onrender.com";
 
 let selectedPlatform = "";
 let orderId = "";
@@ -59,3 +59,4 @@ function continueChat() {
     window.location.href = "https://ig.me/m/deltamarket015";
   }
 }
+
