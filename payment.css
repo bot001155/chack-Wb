@@ -1,0 +1,138 @@
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #1b1b3a, #0a0a14);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.page {
+  padding: 20px;
+  width: 100%;
+}
+
+.card {
+  max-width: 420px;
+  margin: auto;
+  background: linear-gradient(145deg, #16162e, #0f0f1f);
+  padding: 28px;
+  border-radius: 18px;
+  box-shadow: 0 25px 70px rgba(0,0,0,0.7);
+  animation: fadeUp 0.6s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+h1 span {
+  color: #c800ff;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 25px;
+}
+
+label {
+  font-size: 14px;
+  margin-top: 14px;
+  display: block;
+}
+
+input, select {
+  width: 100%;
+  padding: 14px;
+  margin-top: 6px;
+  border-radius: 12px;
+  border: none;
+  background: #0c0c1a;
+  color: #fff;
+}
+
+input:focus, select:focus {
+  outline: 2px solid #8f00ff;
+}
+
+.buttons {
+  margin-top: 22px;
+  display: grid;
+  gap: 12px;
+}
+
+button {
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(160,0,255,0.4);
+}
+
+.telegram {
+  background: linear-gradient(135deg, #0088cc, #005eff);
+  color: #fff;
+}
+
+.instagram {
+  background: linear-gradient(135deg, #ff006a, #c800ff);
+  color: #fff;
+}
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #333;
+  border-top: 4px solid #c800ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.popup {
+  background: #14142b;
+  padding: 25px;
+  border-radius: 16px;
+  text-align: center;
+  width: 300px;
+}
+
+.popup button {
+  margin-top: 15px;
+  background: #c800ff;
+  color: #fff;
+}
