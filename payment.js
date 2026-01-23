@@ -27,6 +27,8 @@ if (cache.referral && !VALID_REFERRALS.includes(cache.referral)) {
 }
 
    
+
+   
   fetch(API + "/send-otp", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -83,5 +85,10 @@ function goTelegram() {
     "https://t.me/Delta_Market_Owner?text=" +
     encodeURIComponent("Order ID: " + cache.orderId);
 }
+function goDiscord() {
+  window.location.href =
+    "https://discord.gg/mWK5Kt6WRt";
+}
+
 
 
