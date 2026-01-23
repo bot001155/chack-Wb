@@ -113,3 +113,10 @@ button:hover {
 h2 span {
   color: #c800ff;
 }
+
+.subtitle {
+  text-align: center;
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 25px;
+}
