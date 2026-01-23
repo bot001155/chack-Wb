@@ -22,17 +22,18 @@
   </select>
 
   <input id="referral" placeholder="Admin Referral Code (Optional)">
-<p class="hint">Valid codes: REIO50, SHU50, FLASH50</p>
+  <p class="hint">Valid codes: REIO50, SHU50, FLASH50</p>
 
-
-  <!-- ✅ FIXED: function exists -->
-  <button onclick="startOrder('telegram')">
+  <!-- Buy Buttons -->
+  <button onclick="startOrder('Telegram')">
     Buy via Telegram
   </button>
-  <button onclick="startOrder('discord')">
+
+  <button onclick="startOrder('Discord')">
     Buy via Discord
   </button>
-  <button onclick="startOrder('instagram')">
+
+  <button onclick="startOrder('Instagram')">
     Buy via Instagram
   </button>
 </div>
@@ -50,12 +51,10 @@
 <div id="successBox" class="overlay">
   <div class="box">
     <p id="orderIdText"></p>
-    <button onclick="goTelegram()">Continue</button>
+    <button onclick="goPlatform()">Continue</button>
   </div>
 </div>
 
-<!-- ✅ VERY IMPORTANT -->
 <script src="payment.js"></script>
 </body>
 </html>
-
