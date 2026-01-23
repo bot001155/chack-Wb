@@ -18,6 +18,15 @@ function startOrder(platform) {
     return;
   }
 
+cache.referral = (document.getElementById("referral")?.value || "").trim().toUpperCase();
+
+// Optional but must be valid if entered
+if (cache.referral && !VALID_REFERRALS.includes(cache.referral)) {
+  alert("Invalid referral code.");
+  return;
+}
+
+   
   fetch(API + "/send-otp", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -74,4 +83,5 @@ function goTelegram() {
     "https://t.me/Delta_Market_Owner?text=" +
     encodeURIComponent("Order ID: " + cache.orderId);
 }
+
 
