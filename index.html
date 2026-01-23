@@ -21,9 +21,19 @@
     <option>Binance</option>
   </select>
 
+  <input id="referral" placeholder="Admin Referral Code (Optional)">
+<p class="hint">Valid codes: REIO50, SHU50, FLASH50</p>
+
+
   <!-- ✅ FIXED: function exists -->
   <button onclick="startOrder('telegram')">
     Buy via Telegram
+  </button>
+  <button onclick="startOrder('discord')">
+    Buy via Discord
+  </button>
+  <button onclick="startOrder('instagram')">
+    Buy via Instagram
   </button>
 </div>
 
@@ -48,3 +58,4 @@
 <script src="payment.js"></script>
 </body>
 </html>
+
