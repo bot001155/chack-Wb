@@ -18,17 +18,20 @@ function startOrder(platform) {
     return;
   }
 
-cache.referral = (document.getElementById("referral")?.value || "").trim().toUpperCase();
+  cache.referral = (document.getElementById("referral")?.value || "")
+    .trim()
+    .toUpperCase();
 
-// Optional but must be valid if entered
-if (cache.referral && !VALID_REFERRALS.includes(cache.referral)) {
-  alert("Invalid referral code.");
-  return;
-}
+  // Optional but must be valid if entered
+  if (cache.referral && !VALID_REFERRALS.includes(cache.referral)) {
+    alert("Invalid referral code. Use only: REIO50, SHU50, FLASH50");
+    return;
+  }
 
-   
+  // Close old popups if open
+  document.getElementById("otpBox").style.display = "none";
+  document.getElementById("successBox").style.display = "none";
 
-   
   fetch(API + "/send-otp", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -40,7 +43,16 @@ if (cache.referral && !VALID_REFERRALS.includes(cache.referral)) {
         alert("Failed to send OTP");
         return;
       }
-      document.getElementById("otpBox").style.display = "flex";
+
+      // Show loading first
+      document.getElementById("loadingBox").style.display = "flex";
+
+      // Delay OTP popup for 2 seconds
+      setTimeout(() => {
+        document.getElementById("loadingBox").style.display = "none";
+        document.getElementById("otp").value = "";
+        document.getElementById("otpBox").style.display = "flex";
+      }, 2000);
     })
     .catch(() => alert("Server error"));
 }
@@ -51,13 +63,24 @@ if (cache.referral && !VALID_REFERRALS.includes(cache.referral)) {
 function verifyOtp() {
   const otp = document.getElementById("otp").value.trim();
 
+  if (!otp) {
+    alert("Please enter OTP");
+    return;
+  }
+
   fetch(API + "/verify-otp", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       email: cache.email,
       otp: otp,
-      orderData: cache
+      orderData: {
+        name: cache.name,
+        product: cache.product,
+        payment: cache.payment,
+        platform: cache.platform,
+        referral: cache.referral || "None"
+      }
     })
   })
     .then(res => res.json())
@@ -67,28 +90,54 @@ function verifyOtp() {
         return;
       }
 
-      document.getElementById("otpBox").style.display = "none";
-      document.getElementById("orderIdText").innerText =
-        "Order ID: " + data.orderId;
-      document.getElementById("successBox").style.display = "flex";
-
       cache.orderId = data.orderId;
+
+      document.getElementById("otpBox").style.display = "none";
+      document.getElementById("orderIdText").innerText = "Order ID: " + data.orderId;
+      document.getElementById("successBox").style.display = "flex";
     })
     .catch(() => alert("Server error"));
 }
 
 /* ======================
-   REDIRECT TO TELEGRAM
+   REDIRECT (Telegram / Discord / Instagram)
 ====================== */
-function goTelegram() {
+function goPlatform() {
+  if (!cache.orderId) {
+    alert("Order ID not found. Please try again.");
+    return;
+  }
+
+  const msg =
+    `Order ID: ${cache.orderId}\n` +
+    `Name: ${cache.name}\n` +
+    `Product: ${cache.product}\n` +
+    `Payment: ${cache.payment}\n` +
+    `Referral: ${cache.referral || "None"}\n` +
+    `Platform: ${cache.platform}`;
+
+  // ✅ CHANGE THESE LINKS
+  const TELEGRAM_USERNAME = "Delta_Market_Owner"; // only username
+  const DISCORD_LINK = "https://discord.gg/YOUR_SERVER_INVITE";
+  const INSTAGRAM_LINK = "https://instagram.com/YOUR_USERNAME";
+
+  if (cache.platform === "Telegram") {
+    window.location.href =
+      `https://t.me/${TELEGRAM_USERNAME}?text=` + encodeURIComponent(msg);
+    return;
+  }
+
+  if (cache.platform === "Discord") {
+    window.location.href = DISCORD_LINK;
+    return;
+  }
+
+  if (cache.platform === "Instagram") {
+    window.location.href = INSTAGRAM_LINK;
+    return;
+  }
+
+  // fallback
   window.location.href =
-    "https://t.me/Delta_Market_Owner?text=" +
-    encodeURIComponent("Order ID: " + cache.orderId);
+    `https://t.me/${TELEGRAM_USERNAME}?text=` + encodeURIComponent(msg);
 }
-function goDiscord() {
-  window.location.href =
-    "https://discord.gg/mWK5Kt6WRt";
-}
-
-
-
