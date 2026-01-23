@@ -24,7 +24,7 @@ function startOrder(platform) {
 
   // Optional but must be valid if entered
   if (cache.referral && !VALID_REFERRALS.includes(cache.referral)) {
-    alert("Invalid referral code. Use only: REIO50, SHU50, FLASH50");
+    alert("Invalid referral code.");
     return;
   }
 
@@ -118,7 +118,7 @@ function goPlatform() {
 
   // ✅ CHANGE THESE LINKS
   const TELEGRAM_USERNAME = "Delta_Market_Owner"; // only username
-  const DISCORD_LINK = "https://discord.gg/YOUR_SERVER_INVITE";
+  const DISCORD_LINK = "https://discord.gg/mWK5Kt6WRt";
   const INSTAGRAM_LINK = "https://instagram.com/YOUR_USERNAME";
 
   if (cache.platform === "Telegram") {
@@ -141,3 +141,4 @@ function goPlatform() {
   window.location.href =
     `https://t.me/${TELEGRAM_USERNAME}?text=` + encodeURIComponent(msg);
 }
+
