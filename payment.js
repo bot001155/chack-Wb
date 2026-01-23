@@ -1,4 +1,5 @@
 const API = "https://delta-backend-3ztx.onrender.com";
+const VALID_REFERRALS = ["REIO50", "SHU50", "FLASH50"];
 
 let cache = {};
 
@@ -73,3 +74,4 @@ function goTelegram() {
     "https://t.me/Delta_Market_Owner?text=" +
     encodeURIComponent("Order ID: " + cache.orderId);
 }
+
