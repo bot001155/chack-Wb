@@ -109,3 +109,7 @@ button:hover {
 .overlay{
   display: none;
 }
+
+h2 span {
+  color: #c800ff;
+}
