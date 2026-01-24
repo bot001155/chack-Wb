@@ -1,201 +1,144 @@
-// ==============================
-// BACKEND API URL (Railway)
-// ==============================
 const API = "https://backend-production-2cbc.up.railway.app";
+const VALID_REFERRALS = ["REIO50", "SHU50", "FLASH50"];
 
-// ==============================
-// HELPERS
-// ==============================
-function getValue(id) {
-  const el = document.getElementById(id);
-  return el ? el.value.trim() : "";
-}
+let cache = {};
 
-function setText(id, text) {
-  const el = document.getElementById(id);
-  if (el) el.innerText = text;
-}
+/* ======================
+   START ORDER
+====================== */
+function startOrder(platform) {
+  cache.platform = platform;
+  cache.name = document.getElementById("name").value.trim();
+  cache.product = document.getElementById("product").value.trim();
+  cache.email = document.getElementById("email").value.trim();
+  cache.payment = document.getElementById("payment").value;
 
-function show(id) {
-  const el = document.getElementById(id);
-  if (el) el.style.display = "block";
-}
-
-function hide(id) {
-  const el = document.getElementById(id);
-  if (el) el.style.display = "none";
-}
-
-// ==============================
-// START ORDER (BUY BUTTON)
-// ==============================
-async function startOrder(planName, price) {
-  try {
-    // Example input ids (change if your HTML ids are different)
-    const fullName = getValue("fullName");
-    const telegram = getValue("telegram");
-    const email = getValue("email");
-
-    if (!fullName) {
-      alert("Please enter Full Name");
-      return;
-    }
-
-    if (!telegram) {
-      alert("Please enter Telegram Username");
-      return;
-    }
-
-    if (!email) {
-      alert("Please enter Email");
-      return;
-    }
-
-    // OPTIONAL: show loading
-    setText("statusText", "Processing order...");
-    show("statusBox");
-
-    // ==============================
-    // CALL BACKEND: START ORDER
-    // ==============================
-    // ⚠️ Change endpoint if your backend uses different route name
-    const res = await fetch(`${API}/start-order`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        fullName,
-        telegram,
-        email,
-        planName,
-        price,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      console.error("Start order error:", data);
-      alert(data.message || "Order failed. Try again.");
-      return;
-    }
-
-    // Save orderId in localStorage so we can verify OTP later
-    if (data.orderId) {
-      localStorage.setItem("orderId", data.orderId);
-    }
-
-    setText("statusText", "Order started ✅ Now send OTP");
-    alert("Order started ✅ Now send OTP to your email.");
-
-  } catch (err) {
-    console.error(err);
-    alert("Something went wrong. Check console.");
+  if (!cache.name || !cache.product || !cache.email) {
+    alert("Please fill all fields");
+    return;
   }
-}
 
-// ==============================
-// SEND OTP
-// ==============================
-async function sendOtp() {
-  try {
-    const email = getValue("email");
+  cache.referral = (document.getElementById("referral")?.value || "")
+    .trim()
+    .toUpperCase();
 
-    if (!email) {
-      alert("Enter your email first");
-      return;
-    }
-
-    setText("statusText", "Sending OTP...");
-    show("statusBox");
-
-    // ⚠️ Change endpoint if your backend uses different route name
-    const res = await fetch(`${API}/send-otp`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      console.error("Send OTP error:", data);
-      alert(data.message || "OTP failed to send.");
-      return;
-    }
-
-    setText("statusText", "OTP sent ✅ Check your email");
-    alert("OTP sent ✅ Check your email (Spam also).");
-
-  } catch (err) {
-    console.error(err);
-    alert("OTP send error. Check console.");
+  // Optional but must be valid if entered
+  if (cache.referral && !VALID_REFERRALS.includes(cache.referral)) {
+    alert("Invalid referral code.");
+    return;
   }
+
+  // Close old popups if open
+  document.getElementById("otpBox").style.display = "none";
+  document.getElementById("successBox").style.display = "none";
+
+  fetch(API + "/send-otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: cache.email })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (!data.success) {
+        alert("Failed to send OTP");
+        return;
+      }
+
+      // Show loading first
+      document.getElementById("loadingBox").style.display = "flex";
+
+      // Delay OTP popup for 2 seconds
+      setTimeout(() => {
+        document.getElementById("loadingBox").style.display = "none";
+        document.getElementById("otp").value = "";
+        document.getElementById("otpBox").style.display = "flex";
+      }, 2000);
+    })
+    .catch(() => alert("Server error"));
 }
 
-// ==============================
-// VERIFY OTP
-// ==============================
-async function verifyOtp() {
-  try {
-    const email = getValue("email");
-    const otp = getValue("otp");
+/* ======================
+   VERIFY OTP
+====================== */
+function verifyOtp() {
+  const otp = document.getElementById("otp").value.trim();
 
-    const orderId = localStorage.getItem("orderId");
-
-    if (!email) {
-      alert("Enter your email");
-      return;
-    }
-
-    if (!otp) {
-      alert("Enter OTP");
-      return;
-    }
-
-    setText("statusText", "Verifying OTP...");
-    show("statusBox");
-
-    // ⚠️ Change endpoint if your backend uses different route name
-    const res = await fetch(`${API}/verify-otp`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        otp,
-        orderId, // optional (if your backend needs it)
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      console.error("Verify OTP error:", data);
-      alert(data.message || "OTP invalid / expired");
-      return;
-    }
-
-    setText("statusText", "OTP verified ✅ Order confirmed");
-    alert("OTP verified ✅ Your order is confirmed!");
-
-    // OPTIONAL: redirect after success
-    // window.location.href = "success.html";
-
-  } catch (err) {
-    console.error(err);
-    alert("OTP verify error. Check console.");
+  if (!otp) {
+    alert("Please enter OTP");
+    return;
   }
+
+  fetch(API + "/verify-otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: cache.email,
+      otp: otp,
+      orderData: {
+        name: cache.name,
+        product: cache.product,
+        payment: cache.payment,
+        platform: cache.platform,
+        referral: cache.referral || "None"
+      }
+    })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (!data.success) {
+        alert("Invalid OTP");
+        return;
+      }
+
+      cache.orderId = data.orderId;
+
+      document.getElementById("otpBox").style.display = "none";
+      document.getElementById("orderIdText").innerText = "Order ID: " + data.orderId;
+      document.getElementById("successBox").style.display = "flex";
+    })
+    .catch(() => alert("Server error"));
 }
 
-// ==============================
-// OPTIONAL: Make functions global
-// so HTML onclick can call them
-// ==============================
-window.startOrder = startOrder;
-window.sendOtp = sendOtp;
-window.verifyOtp = verifyOtp;
+/* ======================
+   REDIRECT (Telegram / Discord / Instagram)
+====================== */
+function goPlatform() {
+  if (!cache.orderId) {
+    alert("Order ID not found. Please try again.");
+    return;
+  }
+
+  const msg =
+    `Order ID: ${cache.orderId}\n` +
+    `Name: ${cache.name}\n` +
+    `Product: ${cache.product}\n` +
+    `Payment: ${cache.payment}\n` +
+    `Referral: ${cache.referral || "None"}\n` +
+    `Platform: ${cache.platform}`;
+
+  // ✅ CHANGE THESE LINKS
+  const TELEGRAM_USERNAME = "Delta_Market_Owner"; // only username
+  const DISCORD_LINK = "https://discord.gg/mWK5Kt6WRt";
+  const INSTAGRAM_LINK = "https://instagram.com/YOUR_USERNAME";
+
+  if (cache.platform === "Telegram") {
+    window.location.href =
+      `https://t.me/${TELEGRAM_USERNAME}?text=` + encodeURIComponent(msg);
+    return;
+  }
+
+  if (cache.platform === "Discord") {
+    window.location.href = DISCORD_LINK;
+    return;
+  }
+
+  if (cache.platform === "Instagram") {
+    window.location.href = INSTAGRAM_LINK;
+    return;
+  }
+
+  // fallback
+  window.location.href =
+    `https://t.me/${TELEGRAM_USERNAME}?text=` + encodeURIComponent(msg);
+}
+
