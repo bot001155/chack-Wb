@@ -4,12 +4,12 @@ const VALID_REFERRALS = ["RIEO50", "SUE50", "FLASH50"];
 let cache = {};
 
 /* ======================
-   REFERRAL APPLY LOGIC (ADDED)
+   REFERRAL APPLY LOGIC
 ====================== */
 
 let referralApplied = false;
 
-const referralInput = document.getElementById("referral");
+const referralInput = document.getElementById("referralCode");
 const applyReferralBtn = document.getElementById("applyReferral");
 const discountPopup = document.getElementById("discountPopup");
 
@@ -41,7 +41,7 @@ if (applyReferralBtn && referralInput && discountPopup) {
     applyReferralBtn.disabled = true;
     applyReferralBtn.style.opacity = "0.6";
 
-    discountPopup.innerText = "✅ 5% discount applied in your product";
+    discountPopup.innerText = "✅ 5% discount applied to your product";
     discountPopup.style.display = "block";
   });
 
@@ -71,7 +71,7 @@ function startOrder(platform) {
     return;
   }
 
-  cache.referral = (document.getElementById("referral")?.value || "")
+  cache.referral = (document.getElementById("referralCode")?.value || "")
     .trim()
     .toUpperCase();
 
