@@ -4,6 +4,59 @@ const VALID_REFERRALS = ["RIEO50", "SUE50", "FLASH50"];
 let cache = {};
 
 /* ======================
+   REFERRAL APPLY LOGIC (ADDED)
+====================== */
+
+let referralApplied = false;
+
+const referralInput = document.getElementById("referral");
+const applyReferralBtn = document.getElementById("applyReferral");
+const discountPopup = document.getElementById("discountPopup");
+
+if (applyReferralBtn && referralInput && discountPopup) {
+  applyReferralBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+
+    if (referralApplied) {
+      discountPopup.innerText = "⚠️ Discount already applied";
+      discountPopup.style.display = "block";
+      return;
+    }
+
+    const code = referralInput.value.trim().toUpperCase();
+
+    if (!code) {
+      alert("Please enter referral code");
+      return;
+    }
+
+    if (!VALID_REFERRALS.includes(code)) {
+      alert("Invalid referral code");
+      return;
+    }
+
+    referralApplied = true;
+    referralInput.value = code;
+    referralInput.disabled = true;
+    applyReferralBtn.disabled = true;
+    applyReferralBtn.style.opacity = "0.6";
+
+    discountPopup.innerText = "✅ 5% discount applied in your product";
+    discountPopup.style.display = "block";
+  });
+
+  // Hide popup when clicking anywhere else
+  document.addEventListener("click", function () {
+    discountPopup.style.display = "none";
+  });
+
+  // Prevent popup click from closing itself
+  discountPopup.addEventListener("click", function (e) {
+    e.stopPropagation();
+  });
+}
+
+/* ======================
    START ORDER
 ====================== */
 function startOrder(platform) {
@@ -28,11 +81,9 @@ function startOrder(platform) {
     return;
   }
 
-  // Close old popups if open
   document.getElementById("otpBox").style.display = "none";
   document.getElementById("successBox").style.display = "none";
 
-  // ✅ SHOW LOADING INSTANTLY (no delay)
   document.getElementById("loadingBox").style.display = "flex";
 
   fetch(API + "/send-otp", {
@@ -42,7 +93,6 @@ function startOrder(platform) {
   })
     .then(res => res.json())
     .then(data => {
-      // Hide loading
       document.getElementById("loadingBox").style.display = "none";
 
       if (!data.success) {
@@ -50,7 +100,6 @@ function startOrder(platform) {
         return;
       }
 
-      // ✅ Show OTP popup instantly after success
       document.getElementById("otp").value = "";
       document.getElementById("otpBox").style.display = "flex";
     })
@@ -96,14 +145,15 @@ function verifyOtp() {
       cache.orderId = data.orderId;
 
       document.getElementById("otpBox").style.display = "none";
-      document.getElementById("orderIdText").innerText = "Order ID: " + data.orderId;
+      document.getElementById("orderIdText").innerText =
+        "Order ID: " + data.orderId;
       document.getElementById("successBox").style.display = "flex";
     })
     .catch(() => alert("Server error"));
 }
 
 /* ======================
-   REDIRECT (Telegram / Discord / Instagram)
+   REDIRECT
 ====================== */
 function goPlatform() {
   if (!cache.orderId) {
@@ -119,8 +169,7 @@ function goPlatform() {
     `Referral: ${cache.referral || "None"}\n` +
     `Platform: ${cache.platform}`;
 
-  // ✅ CHANGE THESE LINKS
-  const TELEGRAM_USERNAME = "Delta_Market_Owner"; // only username
+  const TELEGRAM_USERNAME = "Delta_Market_Owner";
   const DISCORD_LINK = "https://discord.gg/mWK5Kt6WRt";
   const INSTAGRAM_LINK = "https://instagram.com/YOUR_USERNAME";
 
@@ -140,9 +189,6 @@ function goPlatform() {
     return;
   }
 
-  // fallback
   window.location.href =
     `https://t.me/${TELEGRAM_USERNAME}?text=` + encodeURIComponent(msg);
 }
-
-
