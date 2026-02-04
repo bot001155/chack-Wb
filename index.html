@@ -41,6 +41,20 @@
   </select>
 
   <input id="referral" placeholder="Admin Referral Code (Optional)">
+  <div class="referral-box">
+  <input
+    type="text"
+    id="referralCode"
+    placeholder="Admin Referral Code"
+  />
+  <button id="applyReferral">Apply</button>
+</div>
+
+<!-- Popup message -->
+<div id="discountPopup" class="discount-popup">
+  ✅ 5% discount applied to your product
+</div>
+
   <!-- Buy Buttons -->
   <button onclick="startOrder('Telegram')">
     Buy via Telegram
@@ -84,3 +98,4 @@
 <script src="payment.js"></script>
 </body>
 </html>
+
